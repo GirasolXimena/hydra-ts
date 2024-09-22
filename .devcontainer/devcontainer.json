@@ -14,7 +14,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "sudo apt update && sudo apt install -y build-essential libxi-dev libglu1-mesa-dev libglew-dev pkg-config",
+	"postCreateCommand": "sudo apt update && sudo apt install -y build-essential libxi-dev libglu1-mesa-dev libglew-dev pkg-config"
 
 	// Configure tool-specific properties.
 	// "customizations": {},

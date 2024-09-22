@@ -72,8 +72,8 @@ export default {
   },
 
   getValue:
-    (arr: any[] = []) =>
-    ({ time, bpm }: any) => {
+    (arr: number[] = []) =>
+    ({ time, bpm }: { time: number; bpm: number; }) => {
       const speed = arr._speed ? arr._speed : 1;
       const smooth = arr._smooth ? arr._smooth : 0;
       const index = time * speed * (bpm / 60) + (arr._offset || 0);

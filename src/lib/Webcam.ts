@@ -1,36 +1,27 @@
-export function Webcam(deviceId: number): Promise<HTMLVideoElement> {
-  return navigator.mediaDevices
-    .enumerateDevices()
-    .then((devices) =>
-      devices.filter((devices) => devices.kind === 'videoinput'),
-    )
-    .then((cameras) => {
-      const constraints: MediaStreamConstraints = {
-        audio: false,
-        video: true,
-      };
-
-      if (cameras[deviceId]) {
-        constraints['video'] = {
-          deviceId: {
-            exact: cameras[deviceId].deviceId,
-          },
-        };
-      }
-
-      return window.navigator.mediaDevices.getUserMedia(constraints);
-    })
-    .then((stream) => {
-      const video = document.createElement('video');
-      video.setAttribute('autoplay', '');
-      video.setAttribute('muted', '');
-      video.setAttribute('playsinline', '');
-      video.srcObject = stream;
-
-      return new Promise((resolve, _reject) => {
-        video.addEventListener('loadedmetadata', () => {
-          video.play().then(() => resolve(video));
-        });
-      });
+export async function Webcam(deviceId: number): Promise<HTMLVideoElement> {
+  const devices = await navigator.mediaDevices
+    .enumerateDevices();
+  const cameras = devices.filter((devices_1) => devices_1.kind === 'videoinput');
+  const constraints: MediaStreamConstraints = {
+    audio: false,
+    video: true,
+  };
+  if (cameras[deviceId]) {
+    constraints['video'] = {
+      deviceId: {
+        exact: cameras[deviceId].deviceId,
+      },
+    };
+  }
+  const stream = await window.navigator.mediaDevices.getUserMedia(constraints);
+  const video = document.createElement('video');
+  video.setAttribute('autoplay', '');
+  video.setAttribute('muted', '');
+  video.setAttribute('playsinline', '');
+  video.srcObject = stream;
+  return await new Promise((resolve, _reject) => {
+    video.addEventListener('loadedmetadata', () => {
+      video.play().then(() => resolve(video));
     });
+  });
 }
