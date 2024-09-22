@@ -39,7 +39,7 @@
     "@typescript-eslint/eslint-plugin": "^5.8.1",
     "@typescript-eslint/parser": "^5.8.1",
     "eslint": "^8.5.0",
-    "gl": "^4.9.2",
+    "gl": "^8.0.2",
     "jest": "^27.4.5",
     "jest-environment-jsdom": "^27.4.4",
     "jest-environment-jsdom-global": "^3.0.0",
