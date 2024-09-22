@@ -24,11 +24,11 @@ declare global {
     _ease: (t: number) => number;
     _offset: number;
 
-    fast(speed: number): this;
-    smooth(smooth: number): this;
-    ease(ease: Easing): this;
-    offset(offset: number): this;
-    fit(low: number, high: number): this;
+    fast(speed?: number): this;
+    smooth(smooth?: number): this;
+    ease(ease?: Easing): this;
+    offset(offset?: number): this;
+    fit(low?: number, high?: number): this;
   }
 }
 

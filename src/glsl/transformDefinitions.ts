@@ -116,7 +116,7 @@ export interface ProcessedTransformDefinition extends TransformDefinition {
   processed: true;
 }
 
-export const generatorTransforms = [
+export const generatorTransforms: TransformDefinition[] = [
   {
     name: 'noise',
     type: 'src',
@@ -287,7 +287,7 @@ export const generatorTransforms = [
   },
 ] as const;
 
-export const modifierTransforms = [
+export const modifierTransforms: TransformDefinition[] = [
   {
     name: 'rotate',
     type: 'coord',
