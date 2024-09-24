@@ -3,65 +3,75 @@ import {
   TransformDefinition,
   TransformDefinitionType,
 } from './transformDefinitions.js';
-import { Glsl } from './Glsl';
+import { Glsl, TransformApplication } from './Glsl';
 import ImmutableList from './ImmutableList.js';
+import { glsl } from 'typed-glsl';
+
+type Constructor<T> = new (...args: any[]) => T
 
 type Generator = (...args: unknown[]) => Glsl;
 
 export function createTransformChainClass<
-  T extends readonly TransformDefinition[],
+  T extends readonly TransformDefinition[]
 >(modifierTransforms: T): typeof Glsl {
-  const sourceClass = class extends Glsl {};
+  let sourceClass: typeof Glsl = class extends Glsl {};
 
   for (const transform of modifierTransforms) {
     const processed = processGlsl(transform);
-
-    addTransformChainMethod(sourceClass, processed);
+   sourceClass = addTransformChainMethod(sourceClass, processed);
   }
 
   return sourceClass;
 }
 
-export function createGenerator(
+export function createGenerator<TBase extends Constructor<Glsl>>(
   generatorTransform: TransformDefinition,
-  TransformChainClass: typeof Glsl,
+  TransformChainClass: TBase,
 ): Generator {
   const processed = processGlsl(generatorTransform);
-
-  return (...args: unknown[]) =>
-    new TransformChainClass(
-      new ImmutableList({
-        transform: processed,
-        userArgs: args,
-      }),
-    );
+  return (...args: unknown[]) => {
+    const newImmutableList = new ImmutableList({
+      transform: processed,
+      userArgs: args
+    })
+    const newTransformChainClass = new TransformChainClass(newImmutableList);
+    // console.table({ newImmutableList})
+    return newTransformChainClass;
+  }
 }
 
-export function createGenerators(
+export type Generators = {
+  // osc: (...args: any) => Generator;
+  // add: () => Generator;
+  [x: string]: Generator;
+} 
+
+export function createGenerators<T extends typeof Glsl>(
   generatorTransforms: readonly TransformDefinition[],
-  sourceClass: typeof Glsl,
-): Record<string, Generator> {
+  sourceClass: T,
+): Generators {
   const generatorMap: Record<string, Generator> = {};
 
   for (const transform of generatorTransforms) {
-    generatorMap[transform.name] = createGenerator(transform, sourceClass);
+    console.table(transform)
+    generatorMap[transform.name] = createGenerator<typeof sourceClass>(transform, sourceClass);
   }
 
   return generatorMap;
 }
 
-export function addTransformChainMethod(
-  cls: typeof Glsl,
+export function addTransformChainMethod<T extends typeof Glsl>(
+  cls: T,
   processedTransformDefinition: ProcessedTransformDefinition,
 ) {
   function addTransformApplicationToInternalChain(
     this: Glsl,
     ...args: unknown[]
   ): Glsl {
-    const transform = {
+    const transform: TransformApplication = {
       transform: processedTransformDefinition,
       userArgs: args,
-    };
+    } as TransformApplication;
 
     return new cls(this.transforms.append(transform));
   }
@@ -69,6 +79,8 @@ export function addTransformChainMethod(
   // @ts-ignore
   cls.prototype[processedTransformDefinition.name] =
     addTransformApplicationToInternalChain;
+
+  return cls
 }
 
 const typeLookup: Record<
@@ -107,11 +119,13 @@ export function processGlsl(
     ...transformDefinition.inputs.map((input) => `${input.type} ${input.name}`),
   ].join(', ');
 
-  const glslFunction = `
+  const glslFunction = glsl`
   ${returnType} ${transformDefinition.name}(${signature}) {
       ${transformDefinition.glsl}
   }
 `;
+
+console.log(glslFunction)
 
   return {
     ...transformDefinition,
